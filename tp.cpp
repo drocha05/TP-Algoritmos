@@ -29,10 +29,11 @@ struct pesoCategorias
 void inscribir();
 void genmaincard();
 void actRecord();*/
+tipoAtleta pop(nodo*&);
 nodo* insertarOrdxPeso(nodo*&, tipoAtleta);
-void cargar(FILE*, nodo*);
-void guardar(FILE*, nodo*);
-
+void cargar(FILE*, nodo*&);
+void guardar(FILE*, nodo*&);
+void inscribirAtleta(nodo*&);
 int main()
 {
     int opcMenu;
@@ -52,7 +53,7 @@ int main()
     tipoAtleta maincard[combates] = {0};
     */
     nodo* lista = NULL;
-    FILE* f=fopen("atletas.dat","wb+");
+    FILE* f=fopen("atletas.dat","rb+");
 	
     cout << "Menu de Funciones" << endl;
     cout << "1: Inscripcion de Atleta" << endl;
@@ -67,47 +68,25 @@ int main()
 
     while(opcMenu!=0)
     {
-
-        switch (opcMenu)
+        if (opcMenu == 1)
         {
-        case 1:{
-            int canAtletas, i;
-            tipoAtleta atleta;
-            cout << "Indique la cantidad de atletas a guardar: ";
-            cin >> canAtletas;
-            for (i = 0; i < canAtletas; i++)
-            {
-                cout << "Datos del atleta" << endl;
-                cout << "Id: "; cin >> atleta.id;
-                cout << "Nombre: "; cin >> atleta.nombre;
-                cout << "Apodo: "; cin >> atleta.apodo;
-                cout << "Peso: "; cin >> atleta.peso;
-                cout << "Victorias: "; cin >> atleta.victorias;
-                cout << "Derrotas: "; cin >> atleta.derrotas;
-
-                insertarOrdxPeso(lista, atleta);
-            }
+            inscribirAtleta(lista);
         }
-            break;
-        case 2:
-            
-            break;
-        case 3:
-            
-            break;
-        case 4:{
+        
+        if (opcMenu == 4)
+        {
             cout << "Opcion de guardar en el archivo" << endl;
             guardar(f, lista);
         }
-            break;
-        
-        case 5:{
+
+        if (opcMenu == 5)
+        {
             cout << "Opcion de cargar el archivo a la lista" << endl;
             cargar(f, lista);
             nodo* listaAux = lista;
             int ranking = 1;
             cout << "Ranking" << "\t"<< "Id" << "\t" << "Nombre" << "\t" << "Apodo"
-            << "\t" << "Peso" << "\t" << "Victorias" << "\t" << "Derrotas";
+            << "\t" << "Peso" << "\t" << "Victorias" << "\t" << "Derrotas" << endl;
             while (listaAux!=NULL)
             {
                 tipoAtleta atleta = listaAux->info;
@@ -117,17 +96,12 @@ int main()
                 cout << atleta.apodo << "\t";
                 cout << atleta.peso << "\t";
                 cout << atleta.victorias << "\t";
-                cout << atleta.derrotas << "\t";
+                cout << atleta.derrotas << "\t" << endl;
                 listaAux = listaAux->sgte;
                 ranking++;
             }
         }
-            break;
-        default: 
-            cout << "No es una opcion valida" << endl;
-            break;
-        }
-        
+   
         cout << "Elija una opcion: ";
         cin >> opcMenu;
     }
@@ -135,21 +109,30 @@ int main()
     return 0;
 }
 
+tipoAtleta pop(nodo*& pila){
+    tipoAtleta aux;
+    aux = pila->info;
+    nodo* p = pila;
+    pila = p->sgte;
+    delete p;
+    return aux;
+};
+
 nodo* insertarOrdxPeso(nodo*& lista, tipoAtleta atleta){
     nodo* p = new nodo();
     p->info = atleta;
+
     int pesoRank = p->info.victorias - p->info.derrotas;
-    int pesoRanklista = lista->info.victorias - lista->info.derrotas;
-    if(lista==NULL || pesoRank >= pesoRanklista){
+
+    if(lista==NULL || (pesoRank >= (lista->info.victorias - lista->info.derrotas))){
         p->sgte = lista;
         lista = p;
     }
     else{
         nodo* q = lista;
-        while (q->sgte!=NULL || pesoRank <= pesoRanklista)
+        while (q->sgte!=NULL && (pesoRank <= (q->sgte->info.victorias - q->sgte->info.derrotas)))
         {
             q = q->sgte;
-            pesoRanklista = q->info.victorias - q->info.derrotas;
         }
         p->sgte = q->sgte;
         q->sgte = p;
@@ -157,17 +140,18 @@ nodo* insertarOrdxPeso(nodo*& lista, tipoAtleta atleta){
     return p;
 }
 
-void guardar(FILE* f, nodo* lista){
+void guardar(FILE* f, nodo*& lista){
+    
     tipoAtleta atleta;
-    while(lista!=NULL){
-        atleta = lista->info;
+    nodo* q = lista;
+    while(q!=NULL){
+        atleta = pop(q);
         fwrite(&atleta,sizeof(tipoAtleta),1,f);
-        lista = lista->sgte;
     }
     return;
 }
 
-void cargar(FILE* f, nodo* lista){
+void cargar(FILE* f, nodo*& lista){
     fseek(f,0,SEEK_SET);
     tipoAtleta atleta;
 
@@ -176,6 +160,24 @@ void cargar(FILE* f, nodo* lista){
         insertarOrdxPeso(lista, atleta);
     }   
     return;
+}
+
+void inscribirAtleta(nodo*& lista){
+    int canAtletas, i;
+    tipoAtleta atleta;
+    cout << "Indique la cantidad de atletas a guardar: ";
+    cin >> canAtletas;
+    for (i = 0; i < canAtletas; i++)
+    {
+        cout << "Datos del atleta" << endl;
+        cout << "Id: "; cin >> atleta.id;
+        cout << "Nombre: "; cin >> atleta.nombre;
+        cout << "Apodo: "; cin >> atleta.apodo;
+        cout << "Peso: "; cin >> atleta.peso;
+        cout << "Victorias: "; cin >> atleta.victorias;
+        cout << "Derrotas: "; cin >> atleta.derrotas; 
+        insertarOrdxPeso(lista, atleta);
+    }    
 }
 
 /*void genMainCard(tipoAtleta maincard[], pesoCategorias categorias[], nodo* lista){
