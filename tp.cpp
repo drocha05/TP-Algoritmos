@@ -53,14 +53,17 @@ int main()
     tipoAtleta maincard[combates] = {0};
     */
     nodo* lista = NULL;
+    nodo* listaAct = NULL;
     FILE* f=fopen("atletas.dat","rb+");
+
+    cargar(f, lista);
 	
     cout << "Menu de Funciones" << endl;
     cout << "1: Inscripcion de Atleta" << endl;
     cout << "2: Generar Main Card" << endl;
     cout << "3: Actualizar Record" << endl;
     cout << "4: Guardar Gimnasio" << endl;
-    cout << "5: Cargar Gimnasio" << endl;
+    cout << "5: Mostrar Gimnasio" << endl;
     cout << "0: Salir del programa" << endl;
 
     cout << "Elija una opcion: ";
@@ -81,8 +84,7 @@ int main()
 
         if (opcMenu == 5)
         {
-            cout << "Opcion de cargar el archivo a la lista" << endl;
-            cargar(f, lista);
+            cout << "Opcion de mostrar la lista" << endl;
             nodo* listaAux = lista;
             int ranking = 1;
             cout << "Ranking" << "\t"<< "Id" << "\t" << "Nombre" << "\t" << "Apodo"
@@ -140,6 +142,11 @@ nodo* insertarOrdxPeso(nodo*& lista, tipoAtleta atleta){
     return p;
 }
 
+void buscarId(nodo*& lista, tipoAtleta atleta);{
+    nodo* aux = lista;
+    
+}
+
 void guardar(FILE* f, nodo*& lista){
     
     tipoAtleta atleta;
@@ -160,6 +167,12 @@ void cargar(FILE* f, nodo*& lista){
         insertarOrdxPeso(lista, atleta);
     }   
     return;
+}
+
+void mostrarAtletas(){
+
+
+
 }
 
 void inscribirAtleta(nodo*& lista){
